@@ -149,3 +149,17 @@ PCL2 百宝箱页面本身未包含在开源内容中；本次实现参考的是
 - SHA-256：`C2D6ACC935CD2F00E2144D7E036D5CD82E6B6BD5594E8C75AA75EF2A4ED6AAC3`
 - 解压位置：`D:\DESK\.tools\gh\2.96.0`
 - 可执行文件：`D:\DESK\.tools\gh\2.96.0\bin\gh.exe`
+
+## GitHub 公开发布结果
+
+- GitHub 账号：`Hhhhhhhhh-ai`
+- 公开仓库：`https://github.com/Hhhhhhhhh-ai/desktolls`
+- 首次源码提交：`802e5edca43993fe13a30f1e9fae6d58863c462f`
+- Release：`https://github.com/Hhhhhhhhh-ai/desktolls/releases/tag/v1.3.1`
+- Release 附件：`desktolls-v1.3.1-win-x64.zip`
+- 附件大小：71,966,303 字节（约 68.63 MB）
+- 附件 SHA-256：`751DFBB38C0398473ACCB9EC4FAE8EE0C01348530230489E04B7516BF0590E5F`
+- ZIP 内 `desktolls.exe` SHA-256：`7D914E6241E3779F3F7350BDAEA3E170AC8B69115801912A1AA315477C96CEE1`
+- GitHub Actions：`https://github.com/Hhhhhhhhh-ai/desktolls/actions/runs/29649078665`，Windows 云端构建成功。
+
+GitHub 登录使用官方 OAuth 设备授权，访问令牌保存在 Windows 凭据存储中，没有写入项目文件或下载日志。公开仓库不包含 `.tools`、PCL 源码快照、.NET SDK、NuGet 缓存、`bin`、`obj`、本地日志或根目录 EXE。
