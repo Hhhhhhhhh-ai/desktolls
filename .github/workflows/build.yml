@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore .\src\desktolls\desktolls.csproj -r win-x64
+
+      - name: Build
+        run: dotnet build .\src\desktolls\desktolls.csproj -c Release --no-restore
+
+      - name: Publish Windows x64 single file
+        run: >-
+          dotnet publish .\src\desktolls\desktolls.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          --no-restore
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o .\artifacts\win-x64
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktolls-v1.3.1-win-x64
+          path: .\artifacts\win-x64\desktolls.exe
+          if-no-files-found: error

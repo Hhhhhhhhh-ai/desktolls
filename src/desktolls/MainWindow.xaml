@@ -1,0 +1,670 @@
+<Window x:Class="DeskTolls.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="desktolls"
+        Width="680"
+        Height="720"
+        MinWidth="610"
+        MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource PageBackgroundBrush}"
+        FontFamily="Segoe UI"
+        ResizeMode="CanResizeWithGrip">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="78" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="62" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="White"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid Margin="26,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Border Width="38"
+                        Height="38"
+                        VerticalAlignment="Center"
+                        Background="{StaticResource AccentBrush}"
+                        CornerRadius="6">
+                    <TextBlock Text="D"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="White"
+                               FontSize="22"
+                               FontWeight="SemiBold" />
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            Margin="13,0,0,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="desktolls"
+                               FontSize="20"
+                               FontWeight="SemiBold" />
+                    <TextBlock x:Name="AppStateText"
+                               Margin="0,3,0,0"
+                               Text="正在启动"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               FontSize="12" />
+                </StackPanel>
+
+                <Button Grid.Column="2"
+                        x:Name="HeaderHideButton"
+                        Style="{StaticResource IconButtonStyle}"
+                        Click="HideToTray_Click"
+                        Content="↓"
+                        FontFamily="Segoe UI"
+                        FontSize="17"
+                        FontWeight="SemiBold"
+                        ToolTip="隐藏到托盘" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="26,22,26,12">
+                <TextBlock Margin="1,0,0,10"
+                           Text="功能设置"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource MutedTextBrush}" />
+
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="{StaticResource AccentSoftBrush}"
+                                CornerRadius="5">
+                            <TextBlock Text="&#xE7F8;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Segoe Fluent Icons"
+                                       FontSize="16"
+                                       Foreground="{StaticResource AccentBrush}" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="桌面图标中键切换"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="DesktopStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="正在检测桌面"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="2"
+                                      x:Name="DesktopFeatureToggle"
+                                      Style="{StaticResource ToggleSwitchStyle}"
+                                      Click="DesktopFeatureToggle_Click"
+                                      ToolTip="桌面图标中键切换" />
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Margin="0,17,0,14"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,1,0,0" />
+
+                        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="随 Windows 启动" FontSize="13" />
+                                <TextBlock Text="启动后默认隐藏桌面图标"
+                                           Margin="0,3,0,0"
+                                           FontSize="11"
+                                           Foreground="{StaticResource MutedTextBrush}" />
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1"
+                                          x:Name="StartupToggle"
+                                          VerticalAlignment="Center"
+                                          Style="{StaticResource ToggleSwitchStyle}"
+                                          Click="StartupToggle_Click"
+                                          ToolTip="随 Windows 启动" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#EAF1FB"
+                                CornerRadius="5">
+                            <TextBlock Text="M"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#245EA8" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="自动内存优化"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="MemoryOptimizationStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="准备启动"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="2"
+                                      x:Name="MemoryOptimizationToggle"
+                                      Style="{StaticResource ToggleSwitchStyle}"
+                                      Click="MemoryOptimizationToggle_Click"
+                                      ToolTip="自动优化 desktolls 内存" />
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Margin="0,17,0,14"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,1,0,0" />
+
+                        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="优化间隔"
+                                       FontSize="13" />
+                            <ComboBox Grid.Column="1"
+                                      x:Name="MemoryIntervalCombo"
+                                      Height="34"
+                                      MinWidth="150"
+                                      HorizontalContentAlignment="Left"
+                                      DisplayMemberPath="Name"
+                                      SelectionChanged="MemoryIntervalCombo_SelectionChanged" />
+                            <Button Grid.Column="2"
+                                    x:Name="MemoryOptimizeNowButton"
+                                    Width="92"
+                                    Margin="12,0,0,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="OptimizeMemoryNow_Click"
+                                    Content="立即优化" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#FFF3E7"
+                                CornerRadius="5">
+                            <TextBlock Text="&#xE8A7;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Segoe Fluent Icons"
+                                       FontSize="16"
+                                       Foreground="#A65314" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Win10 经典右键菜单"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="ClassicMenuStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="正在读取设置"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="2"
+                                      x:Name="ClassicMenuToggle"
+                                      Style="{StaticResource ToggleSwitchStyle}"
+                                      Click="ClassicMenuToggle_Click"
+                                      ToolTip="Win10 经典右键菜单" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#FFF4DD"
+                                CornerRadius="5">
+                            <TextBlock Text="W"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#9A5A00" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="禁止 Windows 自动更新"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="WindowsUpdatePolicyStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="正在读取系统策略"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="2"
+                                      x:Name="WindowsUpdatePolicyToggle"
+                                      Style="{StaticResource ToggleSwitchStyle}"
+                                      Click="WindowsUpdatePolicyToggle_Click"
+                                      ToolTip="禁止 Windows 自动下载和安装更新" />
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Margin="0,17,0,14"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,1,0,0" />
+
+                        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="策略范围"
+                                       FontSize="13" />
+                            <TextBlock Grid.Column="1"
+                                       VerticalAlignment="Center"
+                                       Text="禁止自动下载与安装 · 切换时需要管理员权限"
+                                       TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#FCECE9"
+                                CornerRadius="5">
+                            <TextBlock Text="&#xE8B0;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Segoe Fluent Icons"
+                                       FontSize="16"
+                                       Foreground="{StaticResource WarningBrush}" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="鼠标左键连点"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="AutoClickStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="已停止"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="2"
+                                      x:Name="AutoClickFeatureToggle"
+                                      Style="{StaticResource ToggleSwitchStyle}"
+                                      Click="AutoClickFeatureToggle_Click"
+                                      ToolTip="鼠标左键连点" />
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Margin="0,17,0,14"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,1,0,0" />
+
+                        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="触发按键"
+                                       FontSize="13" />
+                            <ComboBox Grid.Column="1"
+                                      x:Name="HotkeyCombo"
+                                      Height="34"
+                                      MinWidth="150"
+                                      HorizontalContentAlignment="Left"
+                                      DisplayMemberPath="Name"
+                                      SelectionChanged="HotkeyCombo_SelectionChanged" />
+                        </Grid>
+
+                        <Grid Grid.Row="3"
+                              Grid.Column="1"
+                              Grid.ColumnSpan="2"
+                              Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="34" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="34" />
+                                <ColumnDefinition Width="74" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="点击频率"
+                                       FontSize="13" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Click="DecreaseFrequency_Click"
+                                    Content="−"
+                                    FontFamily="Segoe UI"
+                                    FontSize="17"
+                                    FontWeight="SemiBold"
+                                    ToolTip="降低频率" />
+                            <Slider Grid.Column="2"
+                                    x:Name="FrequencySlider"
+                                    Margin="10,0"
+                                    VerticalAlignment="Center"
+                                    Minimum="1"
+                                    Maximum="100"
+                                    TickFrequency="1"
+                                    IsSnapToTickEnabled="True"
+                                    ValueChanged="FrequencySlider_ValueChanged" />
+                            <Button Grid.Column="3"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Click="IncreaseFrequency_Click"
+                                    Content="+"
+                                    FontFamily="Segoe UI"
+                                    FontSize="17"
+                                    FontWeight="SemiBold"
+                                    ToolTip="提高频率" />
+                            <TextBlock Grid.Column="4"
+                                       x:Name="FrequencyValueText"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Text="10 次/秒"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#E9F4EE"
+                                CornerRadius="5">
+                            <TextBlock Text="&#xE896;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Segoe Fluent Icons"
+                                       FontSize="16"
+                                       Foreground="#25734A" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="自定义文件下载"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="DownloadStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="等待下载地址"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="0,17,0,14"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,1,0,0" />
+
+                        <Grid Grid.Row="2" Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="下载地址"
+                                       FontSize="13" />
+                            <TextBox Grid.Column="1"
+                                     x:Name="DownloadUrlTextBox"
+                                     Style="{StaticResource InputTextBoxStyle}"
+                                     TextChanged="DownloadInput_TextChanged"
+                                     LostKeyboardFocus="DownloadUrlTextBox_LostKeyboardFocus" />
+                        </Grid>
+
+                        <Grid Grid.Row="3" Grid.Column="1" Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="34" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="保存到"
+                                       FontSize="13" />
+                            <TextBox Grid.Column="1"
+                                     x:Name="DownloadFolderTextBox"
+                                     TextChanged="DownloadInput_TextChanged"
+                                     Style="{StaticResource InputTextBoxStyle}" />
+                            <Button Grid.Column="2"
+                                    x:Name="BrowseDownloadFolderButton"
+                                    Margin="6,0,0,0"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Click="BrowseDownloadFolder_Click"
+                                    Content="…"
+                                    FontFamily="Segoe UI"
+                                    FontSize="18"
+                                    ToolTip="选择保存文件夹" />
+                        </Grid>
+
+                        <Grid Grid.Row="4" Grid.Column="1" Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="文件名"
+                                       FontSize="13" />
+                            <TextBox Grid.Column="1"
+                                     x:Name="DownloadFileNameTextBox"
+                                     TextChanged="DownloadInput_TextChanged"
+                                     Style="{StaticResource InputTextBoxStyle}" />
+                        </Grid>
+
+                        <Grid Grid.Row="5" Grid.Column="1" Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="128" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="下载线程"
+                                       FontSize="13" />
+                            <ComboBox Grid.Column="1"
+                                      x:Name="DownloadThreadCombo"
+                                      Height="34"
+                                      HorizontalContentAlignment="Left"
+                                      DisplayMemberPath="Name"
+                                      SelectionChanged="DownloadThreadCombo_SelectionChanged" />
+                            <CheckBox Grid.Column="3"
+                                      x:Name="AutoDetectDownloadFileNameCheckBox"
+                                      VerticalAlignment="Center"
+                                      Click="AutoDetectDownloadFileNameCheckBox_Click"
+                                      Content="自动识别文件名"
+                                      FontSize="13" />
+                        </Grid>
+
+                        <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,16,0,0">
+                            <ProgressBar x:Name="DownloadProgressBar"
+                                         Height="6"
+                                         Minimum="0"
+                                         Maximum="100"
+                                         Value="0" />
+                            <Grid Margin="0,7,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="DownloadProgressText"
+                                           Text="0%"
+                                           FontSize="11"
+                                           Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Grid.Column="1"
+                                           x:Name="DownloadSpeedText"
+                                           Text="0 KB/s"
+                                           FontSize="11"
+                                           Foreground="{StaticResource MutedTextBrush}" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="7"
+                                    Grid.Column="1"
+                                    Margin="0,14,0,0"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal">
+                            <Button x:Name="StartDownloadButton"
+                                    Width="106"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="StartDownload_Click"
+                                    Content="开始下载"
+                                    IsEnabled="False" />
+                            <Button x:Name="CancelDownloadButton"
+                                    Width="76"
+                                    Margin="10,0,0,0"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    Click="CancelDownload_Click"
+                                    Content="取消"
+                                    IsEnabled="False" />
+                            <Button x:Name="OpenDownloadFolderButton"
+                                    Width="104"
+                                    Margin="10,0,0,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="OpenDownloadFolder_Click"
+                                    Content="打开文件夹" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2"
+                Background="White"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid Margin="26,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center"
+                           Text="v1.3.1"
+                           FontSize="11"
+                           Foreground="{StaticResource MutedTextBrush}" />
+                <Button Grid.Column="1"
+                        Width="100"
+                        Margin="0,0,10,0"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="HideToTray_Click"
+                        Content="隐藏到托盘" />
+                <Button Grid.Column="2"
+                        Width="64"
+                        Style="{StaticResource DangerButtonStyle}"
+                        Click="ExitButton_Click"
+                        Content="退出" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

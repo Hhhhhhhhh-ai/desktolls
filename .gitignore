@@ -1,0 +1,30 @@
+# Local tooling and agent state
+.agents/
+.codex/
+.tools/
+
+# .NET build output
+**/bin/
+**/obj/
+**/publish/
+.vs/
+TestResults/
+artifacts/
+
+# User and IDE files
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+
+# Local binaries, archives, and logs
+/desktolls.exe
+*.log
+*.zip
+*.7z
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store
