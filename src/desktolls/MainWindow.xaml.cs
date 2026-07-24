@@ -21,7 +21,10 @@ public partial class MainWindow : Window
     private readonly bool _startupLaunch;
     private readonly DesktopIconService _desktopIconService = new();
     private readonly ClassicContextMenuService _classicContextMenuService = new();
+    private readonly TaskbarAutoHideService _taskbarAutoHideService = new();
     private readonly MouseHookService _mouseHookService = new();
+    private readonly KeyboardShortcutService _keyboardShortcutService = new();
+    private readonly SoundFeedbackService _soundFeedbackService = new();
     private readonly AutoClickService _autoClickService;
     private readonly MemoryOptimizationService _memoryOptimizationService;
     private readonly CustomDownloadService _customDownloadService = new();
@@ -32,12 +35,14 @@ public partial class MainWindow : Window
     private HwndSource? _windowSource;
     private DrawingIcon? _trayDrawingIcon;
     private WindowsUpdatePolicyState _windowsUpdatePolicyState = new(false, false);
+    private TaskbarAutoHideState _taskbarAutoHideState = new(false, true);
     private bool _initializing = true;
     private bool _allowExit;
     private bool _resourcesDisposed;
     private bool _desktopOperationRunning;
     private bool _classicMenuOperationRunning;
     private bool _windowsUpdatePolicyOperationRunning;
+    private bool _exitOperationRunning;
     private bool _downloadRunning;
     private bool _shownTrayNotice;
     private CancellationTokenSource? _downloadCancellation;
@@ -66,6 +71,20 @@ public partial class MainWindow : Window
 
         _mouseHookService.DesktopMiddlePressed += (_, _) =>
             _ = Dispatcher.InvokeAsync(ToggleDesktopIconsAsync);
+        _keyboardShortcutService.CopyPressed += (_, _) =>
+        {
+            if (_settings.CopySoundEnabled)
+            {
+                _soundFeedbackService.TryPlayCopy(out _);
+            }
+        };
+        _keyboardShortcutService.PastePressed += (_, _) =>
+        {
+            if (_settings.PasteSoundEnabled)
+            {
+                _soundFeedbackService.TryPlayPaste(out _);
+            }
+        };
         _autoClickService.StateChanged += UpdateAutoClickState;
         _memoryOptimizationService.Optimized += UpdateMemoryOptimizationResult;
     }
@@ -81,6 +100,10 @@ public partial class MainWindow : Window
         DesktopFeatureToggle.IsChecked = _settings.DesktopToggleEnabled;
         ClassicMenuToggle.IsChecked = _settings.ClassicContextMenuEnabled;
         AutoClickFeatureToggle.IsChecked = _settings.AutoClickEnabled;
+        CopySoundToggle.IsChecked = _settings.CopySoundEnabled;
+        PasteSoundToggle.IsChecked = _settings.PasteSoundEnabled;
+        TaskbarAutoHideToggle.IsChecked = _settings.TaskbarAutoHideEnabled;
+        RestoreOnExitCheckBox.IsChecked = _settings.RestoreSystemSettingsOnExit;
         MemoryOptimizationToggle.IsChecked = _settings.MemoryOptimizationEnabled;
         StartupToggle.IsChecked = _settings.StartWithWindows;
 
@@ -101,6 +124,7 @@ public partial class MainWindow : Window
             option.Count == _settings.DownloadThreadCount);
         AutoDetectDownloadFileNameCheckBox.IsChecked = _settings.AutoDetectDownloadFileName;
         DownloadFileNameTextBox.IsReadOnly = _settings.AutoDetectDownloadFileName;
+        RefreshTaskbarAutoHideState(alignSetting: true);
         RefreshWindowsUpdatePolicyState();
         _initializing = false;
     }
@@ -145,9 +169,10 @@ public partial class MainWindow : Window
             StartupService.SetEnabled(_settings.StartWithWindows);
             ApplyDesktopFeatureState();
             ApplyAutoClickFeatureState(showError: !_startupLaunch);
+            ApplyClipboardSoundState(showError: !_startupLaunch);
             ApplyMemoryOptimizationState();
+            RefreshTaskbarAutoHideState(alignSetting: true);
             RefreshWindowsUpdatePolicyState();
-
             if (_isFirstRun && _settings.ClassicContextMenuEnabled)
             {
                 await ApplyClassicContextMenuAsync(true);
@@ -259,6 +284,32 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ApplyClipboardSoundState(bool showError)
+    {
+        if (!_settings.CopySoundEnabled && !_settings.PasteSoundEnabled)
+        {
+            _keyboardShortcutService.Stop();
+            UpdateClipboardSoundStatus();
+            return;
+        }
+
+        try
+        {
+            _keyboardShortcutService.Start();
+            UpdateClipboardSoundStatus();
+        }
+        catch (Exception exception)
+        {
+            _settings.CopySoundEnabled = false;
+            _settings.PasteSoundEnabled = false;
+            CopySoundToggle.IsChecked = false;
+            PasteSoundToggle.IsChecked = false;
+            _settingsStore.Save(_settings);
+            UpdateClipboardSoundStatus();
+            ShowError("复制/粘贴提示音启用失败", exception, showError);
+        }
+    }
+
     private async Task ToggleDesktopIconsAsync()
     {
         if (_desktopOperationRunning || !_settings.DesktopToggleEnabled)
@@ -348,6 +399,38 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SettingsNavigation_Checked(object sender, RoutedEventArgs e)
+    {
+        if (IsInitialized && sender is FrameworkElement { Tag: string section })
+        {
+            ShowSettingsSection(section);
+        }
+    }
+
+    private void ShowSettingsSection(string section)
+    {
+        var showSystem = string.Equals(section, "System", StringComparison.Ordinal);
+        var showInput = string.Equals(section, "Input", StringComparison.Ordinal);
+        var showDownload = string.Equals(section, "Download", StringComparison.Ordinal);
+
+        DesktopSection.Visibility = showSystem ? Visibility.Visible : Visibility.Collapsed;
+        TaskbarSection.Visibility = showSystem ? Visibility.Visible : Visibility.Collapsed;
+        ClassicMenuSection.Visibility = showSystem ? Visibility.Visible : Visibility.Collapsed;
+        WindowsUpdateSection.Visibility = showSystem ? Visibility.Visible : Visibility.Collapsed;
+
+        MemorySection.Visibility = showInput ? Visibility.Visible : Visibility.Collapsed;
+        AutoClickSection.Visibility = showInput ? Visibility.Visible : Visibility.Collapsed;
+        ClipboardSoundSection.Visibility = showInput ? Visibility.Visible : Visibility.Collapsed;
+
+        DownloadSection.Visibility = showDownload ? Visibility.Visible : Visibility.Collapsed;
+        SettingsSectionTitle.Text = showSystem
+            ? "系统与桌面"
+            : showInput
+                ? "输入与性能"
+                : "文件下载";
+        SettingsScrollViewer.ScrollToTop();
+    }
+
     private void StartupToggle_Click(object sender, RoutedEventArgs e)
     {
         if (_initializing)
@@ -368,6 +451,17 @@ public partial class MainWindow : Window
             StartupToggle.IsChecked = previousValue;
             ShowError("开机启动设置失败", exception, true);
         }
+    }
+
+    private void RestoreOnExitCheckBox_Click(object sender, RoutedEventArgs e)
+    {
+        if (_initializing || _exitOperationRunning)
+        {
+            return;
+        }
+
+        _settings.RestoreSystemSettingsOnExit = RestoreOnExitCheckBox.IsChecked == true;
+        _settingsStore.Save(_settings);
     }
 
     private async void ClassicMenuToggle_Click(object sender, RoutedEventArgs e)
@@ -405,6 +499,81 @@ public partial class MainWindow : Window
         ApplyMemoryOptimizationState();
         _settingsStore.Save(_settings);
         UpdateAppStatus();
+    }
+
+    private void ClipboardSoundToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (_initializing)
+        {
+            return;
+        }
+
+        _settings.CopySoundEnabled = CopySoundToggle.IsChecked == true;
+        _settings.PasteSoundEnabled = PasteSoundToggle.IsChecked == true;
+        ApplyClipboardSoundState(showError: true);
+        _settingsStore.Save(_settings);
+        UpdateAppStatus();
+    }
+
+    private void PreviewCopySound_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_soundFeedbackService.TryPlayCopy(out var error) && error is not null)
+        {
+            ShowError("复制提示音播放失败", error, true);
+        }
+    }
+
+    private void PreviewPasteSound_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_soundFeedbackService.TryPlayPaste(out var error) && error is not null)
+        {
+            ShowError("粘贴提示音播放失败", error, true);
+        }
+    }
+
+    private void TaskbarAutoHideToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (_initializing)
+        {
+            return;
+        }
+
+        var enabled = TaskbarAutoHideToggle.IsChecked == true;
+        try
+        {
+            _taskbarAutoHideState = _taskbarAutoHideService.SetEnabled(enabled);
+            _settings.TaskbarAutoHideEnabled = _taskbarAutoHideState.AutoHideEnabled;
+            _settingsStore.Save(_settings);
+            UpdateTaskbarAutoHideStatus();
+        }
+        catch (Exception exception)
+        {
+            RefreshTaskbarAutoHideState(alignSetting: true);
+            ShowError("任务栏自动隐藏切换失败", exception, true);
+        }
+
+        UpdateAppStatus();
+    }
+
+    private void RefreshTaskbarAutoHideState(bool alignSetting)
+    {
+        _taskbarAutoHideState = _taskbarAutoHideService.GetState();
+        TaskbarAutoHideToggle.IsChecked = _taskbarAutoHideState.AutoHideEnabled;
+
+        if (alignSetting && _settings.TaskbarAutoHideEnabled != _taskbarAutoHideState.AutoHideEnabled)
+        {
+            _settings.TaskbarAutoHideEnabled = _taskbarAutoHideState.AutoHideEnabled;
+            _settingsStore.Save(_settings);
+        }
+
+        UpdateTaskbarAutoHideStatus();
+    }
+
+    private void UpdateTaskbarAutoHideStatus()
+    {
+        TaskbarAutoHideStatusText.Text = _taskbarAutoHideState.AutoHideEnabled
+            ? "已开启 · 鼠标移到屏幕边缘可显示"
+            : "已关闭 · 任务栏保持显示";
     }
 
     private async void WindowsUpdatePolicyToggle_Click(object sender, RoutedEventArgs e)
@@ -1062,6 +1231,17 @@ public partial class MainWindow : Window
         UpdateAppStatus();
     }
 
+    private void UpdateClipboardSoundStatus()
+    {
+        ClipboardSoundStatusText.Text = (_settings.CopySoundEnabled, _settings.PasteSoundEnabled) switch
+        {
+            (true, true) => "复制和粘贴提示音已开启",
+            (true, false) => "仅复制提示音已开启",
+            (false, true) => "仅粘贴提示音已开启",
+            _ => "已关闭",
+        };
+    }
+
     private void UpdateMemoryOptimizationResult(MemoryOptimizationResult result)
     {
         if (!Dispatcher.CheckAccess())
@@ -1093,6 +1273,18 @@ public partial class MainWindow : Window
             }
         }
 
+        if (_settings.CopySoundEnabled || _settings.PasteSoundEnabled)
+        {
+            try
+            {
+                _keyboardShortcutService.Restart();
+            }
+            catch (Exception exception)
+            {
+                ShowError("复制/粘贴键盘钩子恢复失败", exception, IsVisible);
+            }
+        }
+
         MemoryOptimizationStatusText.Text =
             $"工作集 {FormatMemory(result.WorkingSetAfter)} · 本次减少 {FormatMemory(result.WorkingSetReduction)}";
     }
@@ -1119,6 +1311,8 @@ public partial class MainWindow : Window
             _settings.DesktopToggleEnabled,
             _settings.ClassicContextMenuEnabled,
             _settings.AutoClickEnabled,
+            _settings.CopySoundEnabled || _settings.PasteSoundEnabled,
+            _taskbarAutoHideState.AutoHideEnabled,
             _settings.MemoryOptimizationEnabled,
             _windowsUpdatePolicyState.AutomaticUpdatesDisabled,
         }.Count(enabled => enabled);
@@ -1194,12 +1388,129 @@ public partial class MainWindow : Window
         ExitApplication();
     }
 
-    private void ExitApplication()
+    private async void ExitApplication()
     {
-        _allowExit = true;
-        DisposeResources();
-        Close();
-        System.Windows.Application.Current.Shutdown();
+        if (_exitOperationRunning)
+        {
+            return;
+        }
+
+        _exitOperationRunning = true;
+        SetExitControlsRunning(true);
+
+        try
+        {
+            if (_settings.RestoreSystemSettingsOnExit)
+            {
+                AppStateText.Text = "正在恢复系统设置";
+                await RestoreSystemSettingsForExitAsync();
+            }
+
+            _allowExit = true;
+            DisposeResources();
+            Close();
+            System.Windows.Application.Current.Shutdown();
+        }
+        catch (Win32Exception exception) when (exception.NativeErrorCode == 1223)
+        {
+            ShowSettingsWindow();
+            System.Windows.MessageBox.Show(
+                this,
+                "已取消管理员授权。为避免 Windows 更新策略残留，desktolls 将继续运行。",
+                "desktolls",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            RefreshWindowsUpdatePolicyState();
+            UpdateAppStatus();
+        }
+        catch (Exception exception)
+        {
+            ShowSettingsWindow();
+            ShowError("退出前恢复系统设置失败", exception, true);
+            try
+            {
+                RefreshSystemSettingControls();
+            }
+            catch
+            {
+                // Keep the original restoration error as the actionable result.
+            }
+            UpdateAppStatus();
+        }
+        finally
+        {
+            if (!_allowExit)
+            {
+                _exitOperationRunning = false;
+                SetExitControlsRunning(false);
+            }
+        }
+    }
+
+    private async Task RestoreSystemSettingsForExitAsync()
+    {
+        RefreshWindowsUpdatePolicyState();
+        if (_windowsUpdatePolicyState.ManagedByDesktolls)
+        {
+            AppStateText.Text = "正在恢复 Windows 更新策略";
+            var exitCode = await WindowsUpdatePolicyService.SetAutomaticUpdatesDisabledAsync(false);
+            if (exitCode != 0)
+            {
+                throw new InvalidOperationException($"更新策略恢复进程返回错误代码 {exitCode}。");
+            }
+
+            _windowsUpdatePolicyState = WindowsUpdatePolicyService.GetState();
+            if (_windowsUpdatePolicyState.ManagedByDesktolls)
+            {
+                throw new InvalidOperationException("desktolls 管理的 Windows 更新策略仍未恢复。");
+            }
+        }
+
+        if (_classicContextMenuService.IsEnabled())
+        {
+            AppStateText.Text = "正在恢复 Windows 11 右键菜单";
+            _classicContextMenuService.SetEnabled(false);
+            await ExplorerService.RestartAsync();
+        }
+
+        AppStateText.Text = "正在显示任务栏与桌面图标";
+        _taskbarAutoHideState = _taskbarAutoHideService.SetEnabled(false);
+        if (!await _desktopIconService.SetIconsVisibleAsync(true, 18))
+        {
+            throw new InvalidOperationException("Explorer 未能恢复桌面图标显示。");
+        }
+
+        if (_classicContextMenuService.IsEnabled()
+            || _taskbarAutoHideState.AutoHideEnabled
+            || _desktopIconService.AreIconsVisible() != true)
+        {
+            throw new InvalidOperationException("退出设置恢复后未能通过完整状态校验。");
+        }
+
+        _settings.ClassicContextMenuEnabled = false;
+        _settings.TaskbarAutoHideEnabled = false;
+        _settingsStore.Save(_settings);
+        RefreshSystemSettingControls();
+    }
+
+    private void RefreshSystemSettingControls()
+    {
+        var classicMenuEnabled = _classicContextMenuService.IsEnabled();
+        _settings.ClassicContextMenuEnabled = classicMenuEnabled;
+        ClassicMenuToggle.IsChecked = classicMenuEnabled;
+        UpdateClassicMenuStatus(classicMenuEnabled);
+        RefreshTaskbarAutoHideState(alignSetting: true);
+        RefreshWindowsUpdatePolicyState();
+        UpdateDesktopStatus();
+        _settingsStore.Save(_settings);
+    }
+
+    private void SetExitControlsRunning(bool running)
+    {
+        ExitButton.IsEnabled = !running;
+        HideToTrayButton.IsEnabled = !running;
+        HeaderHideButton.IsEnabled = !running;
+        RestoreOnExitCheckBox.IsEnabled = !running;
     }
 
     private void OnClosing(object? sender, CancelEventArgs e)
@@ -1227,6 +1538,8 @@ public partial class MainWindow : Window
         _memoryOptimizationService.Dispose();
         _autoClickService.Dispose();
         _mouseHookService.Dispose();
+        _keyboardShortcutService.Dispose();
+        _soundFeedbackService.Dispose();
         _hotkeyService?.Dispose();
         _customDownloadService.Dispose();
 

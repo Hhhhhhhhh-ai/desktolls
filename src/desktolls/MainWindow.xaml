@@ -16,6 +16,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="78" />
+            <RowDefinition Height="54" />
             <RowDefinition Height="*" />
             <RowDefinition Height="62" />
         </Grid.RowDefinitions>
@@ -69,17 +70,80 @@
             </Grid>
         </Border>
 
-        <ScrollViewer Grid.Row="1"
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1">
+            <StackPanel Margin="24,0"
+                        HorizontalAlignment="Left"
+                        Orientation="Horizontal">
+                <RadioButton x:Name="SystemNavigationTab"
+                             AutomationProperties.Name="系统"
+                             GroupName="SettingsNavigation"
+                             IsChecked="True"
+                             Style="{StaticResource NavigationTabStyle}"
+                             Tag="System"
+                             Checked="SettingsNavigation_Checked">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE713;"
+                                   VerticalAlignment="Center"
+                                   FontFamily="Segoe Fluent Icons"
+                                   FontSize="14" />
+                        <TextBlock Margin="7,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="系统" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="InputNavigationTab"
+                             AutomationProperties.Name="输入与性能"
+                             GroupName="SettingsNavigation"
+                             Style="{StaticResource NavigationTabStyle}"
+                             Tag="Input"
+                             Checked="SettingsNavigation_Checked">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE765;"
+                                   VerticalAlignment="Center"
+                                   FontFamily="Segoe Fluent Icons"
+                                   FontSize="14" />
+                        <TextBlock Margin="7,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="输入与性能" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="DownloadNavigationTab"
+                             AutomationProperties.Name="下载"
+                             GroupName="SettingsNavigation"
+                             Style="{StaticResource NavigationTabStyle}"
+                             Tag="Download"
+                             Checked="SettingsNavigation_Checked">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE896;"
+                                   VerticalAlignment="Center"
+                                   FontFamily="Segoe Fluent Icons"
+                                   FontSize="14" />
+                        <TextBlock Margin="7,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="下载" />
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="2"
+                      x:Name="SettingsScrollViewer"
                       VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
+                      HorizontalScrollBarVisibility="Disabled"
+                      PanningMode="VerticalOnly">
             <StackPanel Margin="26,22,26,12">
-                <TextBlock Margin="1,0,0,10"
-                           Text="功能设置"
+                <TextBlock x:Name="SettingsSectionTitle"
+                           Margin="1,0,0,10"
+                           Text="系统与桌面"
                            FontSize="13"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource MutedTextBrush}" />
 
-                <Border Style="{StaticResource SectionBorderStyle}">
+                <Border x:Name="DesktopSection"
+                        Style="{StaticResource SectionBorderStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -152,7 +216,51 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource SectionBorderStyle}">
+                <Border x:Name="TaskbarSection"
+                        Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#E9F3EC"
+                                CornerRadius="5">
+                            <TextBlock Text="&#xE7C9;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Segoe Fluent Icons"
+                                       FontSize="16"
+                                       Foreground="#2F6B45" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="自动隐藏任务栏"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="TaskbarAutoHideStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="正在读取系统设置"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="2"
+                                      x:Name="TaskbarAutoHideToggle"
+                                      Style="{StaticResource ToggleSwitchStyle}"
+                                      Click="TaskbarAutoHideToggle_Click"
+                                      ToolTip="自动隐藏 Windows 任务栏" />
+                    </Grid>
+                </Border>
+
+                <Border x:Name="MemorySection"
+                        Visibility="Collapsed"
+                        Style="{StaticResource SectionBorderStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -230,7 +338,8 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource SectionBorderStyle}">
+                <Border x:Name="ClassicMenuSection"
+                        Style="{StaticResource SectionBorderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="42" />
@@ -271,7 +380,8 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource SectionBorderStyle}">
+                <Border x:Name="WindowsUpdateSection"
+                        Style="{StaticResource SectionBorderStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -340,7 +450,9 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource SectionBorderStyle}">
+                <Border x:Name="AutoClickSection"
+                        Visibility="Collapsed"
+                        Style="{StaticResource SectionBorderStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -459,7 +571,109 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource SectionBorderStyle}">
+                <Border x:Name="ClipboardSoundSection"
+                        Visibility="Collapsed"
+                        Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="34"
+                                Height="34"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#F1EDF8"
+                                CornerRadius="5">
+                            <TextBlock Text="&#xE767;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Segoe Fluent Icons"
+                                       FontSize="16"
+                                       Foreground="#6A4C93" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="复制/粘贴提示音"
+                                       FontSize="15"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="ClipboardSoundStatusText"
+                                       Margin="0,4,0,0"
+                                       Text="准备启动"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="0,17,0,14"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,1,0,0" />
+
+                        <Grid Grid.Row="2" Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="34" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="复制提示音"
+                                       FontSize="13" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Click="PreviewCopySound_Click"
+                                    ToolTip="试听复制提示音">
+                                <TextBlock Text="&#xE767;"
+                                           FontFamily="Segoe Fluent Icons"
+                                           FontSize="15" />
+                            </Button>
+                            <ToggleButton Grid.Column="3"
+                                          x:Name="CopySoundToggle"
+                                          VerticalAlignment="Center"
+                                          Style="{StaticResource ToggleSwitchStyle}"
+                                          Click="ClipboardSoundToggle_Click"
+                                          ToolTip="复制提示音" />
+                        </Grid>
+
+                        <Grid Grid.Row="3" Grid.Column="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="34" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="粘贴提示音"
+                                       FontSize="13" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Click="PreviewPasteSound_Click"
+                                    ToolTip="试听粘贴提示音">
+                                <TextBlock Text="&#xE767;"
+                                           FontFamily="Segoe Fluent Icons"
+                                           FontSize="15" />
+                            </Button>
+                            <ToggleButton Grid.Column="3"
+                                          x:Name="PasteSoundToggle"
+                                          VerticalAlignment="Center"
+                                          Style="{StaticResource ToggleSwitchStyle}"
+                                          Click="ClipboardSoundToggle_Click"
+                                          ToolTip="粘贴提示音" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border x:Name="DownloadSection"
+                        Visibility="Collapsed"
+                        Style="{StaticResource SectionBorderStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -639,7 +853,7 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 Background="White"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="0,1,0,0">
@@ -648,18 +862,28 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock VerticalAlignment="Center"
-                           Text="v1.3.1"
+                           Text="v1.10.0"
                            FontSize="11"
                            Foreground="{StaticResource MutedTextBrush}" />
-                <Button Grid.Column="1"
+                <CheckBox Grid.Column="1"
+                          x:Name="RestoreOnExitCheckBox"
+                          Margin="0,0,18,0"
+                          VerticalAlignment="Center"
+                          Click="RestoreOnExitCheckBox_Click"
+                          Content="退出时恢复设置"
+                          ToolTip="退出时显示桌面图标和任务栏，并恢复右键菜单与 desktolls 管理的更新策略" />
+                <Button Grid.Column="2"
+                        x:Name="HideToTrayButton"
                         Width="100"
                         Margin="0,0,10,0"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Click="HideToTray_Click"
                         Content="隐藏到托盘" />
-                <Button Grid.Column="2"
+                <Button Grid.Column="3"
+                        x:Name="ExitButton"
                         Width="64"
                         Style="{StaticResource DangerButtonStyle}"
                         Click="ExitButton_Click"

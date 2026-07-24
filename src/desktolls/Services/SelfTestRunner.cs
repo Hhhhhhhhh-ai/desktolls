@@ -24,6 +24,21 @@ internal static class SelfTestRunner
         Check("设置范围校正", normalizedSettings.ClicksPerSecond == 100, results, ref passed);
         Check("默认热键回退", normalizedSettings.AutoClickHotkey == 0x77, results, ref passed);
         Check(
+            "复制/粘贴提示音默认开启",
+            normalizedSettings.CopySoundEnabled && normalizedSettings.PasteSoundEnabled,
+            results,
+            ref passed);
+        Check(
+            "任务栏自动隐藏默认关闭",
+            !normalizedSettings.TaskbarAutoHideEnabled,
+            results,
+            ref passed);
+        Check(
+            "退出恢复保护默认开启",
+            normalizedSettings.RestoreSystemSettingsOnExit,
+            results,
+            ref passed);
+        Check(
             "内存优化间隔回退",
             normalizedSettings.MemoryOptimizationIntervalSeconds == 10,
             results,
@@ -62,6 +77,44 @@ internal static class SelfTestRunner
             results,
             ref passed);
 
+        var expectedKeyboardHookSize = Environment.Is64BitProcess ? 24 : 20;
+        Check(
+            "键盘钩子结构大小",
+            Marshal.SizeOf<NativeMethods.KbdllHookStruct>() == expectedKeyboardHookSize,
+            results,
+            ref passed);
+
+        var expectedAppBarDataSize = Environment.Is64BitProcess ? 48 : 36;
+        Check(
+            "任务栏 Shell 结构与状态位",
+            Marshal.SizeOf<TaskbarAutoHideService.AppBarData>() == expectedAppBarDataSize
+            && TaskbarAutoHideService.ComposeStateFlags(
+                TaskbarAutoHideService.AbsAlwaysOnTop,
+                enabled: true) == (TaskbarAutoHideService.AbsAlwaysOnTop | TaskbarAutoHideService.AbsAutoHide)
+            && TaskbarAutoHideService.ComposeStateFlags(
+                TaskbarAutoHideService.AbsAlwaysOnTop | TaskbarAutoHideService.AbsAutoHide,
+                enabled: false) == TaskbarAutoHideService.AbsAlwaysOnTop,
+            results,
+            ref passed);
+
+        var copyWave = SoundFeedbackService.CreateCopyWaveData();
+        var pasteWave = SoundFeedbackService.CreatePasteWaveData();
+        Check(
+            "复制提示音 WAV 格式",
+            IsValidWave(copyWave, expectedSampleCount: 4_410),
+            results,
+            ref passed);
+        Check(
+            "粘贴提示音 WAV 格式",
+            IsValidWave(pasteWave, expectedSampleCount: 5_292),
+            results,
+            ref passed);
+        Check(
+            "复制与粘贴提示音不同",
+            !copyWave.AsSpan().SequenceEqual(pasteWave),
+            results,
+            ref passed);
+
         try
         {
             using var icon = TrayIconFactory.Create(false);
@@ -90,6 +143,16 @@ internal static class SelfTestRunner
         catch (Exception exception)
         {
             Check($"经典菜单注册表读取 ({exception.Message})", false, results, ref passed);
+        }
+
+        try
+        {
+            _ = new TaskbarAutoHideService().GetState();
+            Check("任务栏自动隐藏状态读取", true, results, ref passed);
+        }
+        catch (Exception exception)
+        {
+            Check($"任务栏自动隐藏状态读取 ({exception.Message})", false, results, ref passed);
         }
 
         try
@@ -171,4 +234,19 @@ internal static class SelfTestRunner
         results.Add($"[{(condition ? "PASS" : "FAIL")}] {name}");
         passed &= condition;
     }
+
+    private static bool IsValidWave(byte[] wave, int expectedSampleCount)
+    {
+        return wave.Length == 44 + expectedSampleCount * sizeof(short)
+            && wave.AsSpan(0, 4).SequenceEqual("RIFF"u8)
+            && wave.AsSpan(8, 4).SequenceEqual("WAVE"u8)
+            && wave.AsSpan(12, 4).SequenceEqual("fmt "u8)
+            && BitConverter.ToInt16(wave, 20) == 1
+            && BitConverter.ToInt16(wave, 22) == SoundFeedbackService.ChannelCount
+            && BitConverter.ToInt32(wave, 24) == SoundFeedbackService.SampleRate
+            && BitConverter.ToInt16(wave, 34) == SoundFeedbackService.BitsPerSample
+            && wave.AsSpan(36, 4).SequenceEqual("data"u8)
+            && BitConverter.ToInt32(wave, 40) == expectedSampleCount * sizeof(short);
+    }
+
 }

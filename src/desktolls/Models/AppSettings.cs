@@ -14,6 +14,14 @@ public sealed class AppSettings
 
     public int ClicksPerSecond { get; set; } = 10;
 
+    public bool CopySoundEnabled { get; set; } = true;
+
+    public bool PasteSoundEnabled { get; set; } = true;
+
+    public bool TaskbarAutoHideEnabled { get; set; }
+
+    public bool RestoreSystemSettingsOnExit { get; set; } = true;
+
     public bool MemoryOptimizationEnabled { get; set; } = true;
 
     public int MemoryOptimizationIntervalSeconds { get; set; } = 10;

@@ -10,7 +10,7 @@
     <AssemblyName>desktolls</AssemblyName>
     <RootNamespace>DeskTolls</RootNamespace>
     <ApplicationIcon>Assets\desktolls.ico</ApplicationIcon>
-    <Version>1.3.1</Version>
+    <Version>1.10.0</Version>
     <Authors>desktolls</Authors>
     <Description>Desktop utilities and a resilient multi-threaded file downloader.</Description>
   </PropertyGroup>

@@ -61,6 +61,51 @@
             </Setter>
         </Style>
 
+        <Style x:Key="NavigationTabStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="46" />
+            <Setter Property="MinWidth" Value="118" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabSurface"
+                                Margin="2,5"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                            <Grid>
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                                <Border x:Name="SelectionIndicator"
+                                        Height="3"
+                                        Margin="8,0"
+                                        VerticalAlignment="Bottom"
+                                        Background="Transparent"
+                                        CornerRadius="1" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabSurface" Property="Background" Value="#EEF1F3" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabSurface" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                <Setter TargetName="SelectionIndicator" Property="Background" Value="{StaticResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="TabSurface" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="SecondaryButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
             <Setter Property="Padding" Value="16,0" />
